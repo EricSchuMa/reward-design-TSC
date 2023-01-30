@@ -139,6 +139,7 @@ class SUMOEvalCallback(EvalCallback):
 
     def _traffic_metric_callback(self, locals_, globals_):
         self.average_speeds_per_step = np.append(self.average_speeds_per_step, locals_['info']['average_speed'])
+        self.total_brake_per_step = np.append(self.total_brake_per_step, locals_['info']['total_brake'])
         self.total_waits_per_step = np.append(self.total_waits_per_step, locals_['info']['total_wait_time'])
         self.total_CO2_emissions_per_step = np.append(self.total_CO2_emissions_per_step,
                                                       locals_['info']['total_CO2_emission'])
@@ -146,12 +147,20 @@ class SUMOEvalCallback(EvalCallback):
 
     def _reset_traffic_metrics(self):
         self.average_speeds_per_step = np.array([])
+        self.total_brake_per_step = np.array([])
         self.total_waits_per_step = np.array([])
         self.total_CO2_emissions_per_step = np.array([])
         self.total_queues_per_step = np.array([])
 
     def _record_traffic_metrics(self):
+        self.logger.record("eval/mean_brake", np.mean(self.total_brake_per_step))
         self.logger.record("eval/mean_speed", np.mean(self.average_speeds_per_step))
         self.logger.record("eval/mean_wait", np.mean(self.total_waits_per_step))
         self.logger.record("eval/mean_emission", np.mean(self.total_CO2_emissions_per_step))
         self.logger.record("eval/mean_queue", np.mean(self.total_queues_per_step))
+        self.logger.record("eval/corr_queue_emiss", np.corrcoef(self.total_queues_per_step,
+                                                                self.total_CO2_emissions_per_step)[0][1])
+        self.logger.record("eval/corr_brake_emiss", np.corrcoef(self.total_brake_per_step,
+                                                                self.total_CO2_emissions_per_step)[0][1])
+        self.logger.record("eval/corr_brake_queue", np.corrcoef(self.total_brake_per_step,
+                                                                self.total_queues_per_step)[0][1])
