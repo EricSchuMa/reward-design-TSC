@@ -60,12 +60,14 @@ class SUMOEvalCallback(EvalCallback):
                          verbose,
                          warn)
         self.average_speeds_per_step = np.array([])
+        self.total_brake_per_step = np.array([])
         self.total_waits_per_step = np.array([])
         self.total_CO2_emissions_per_step = np.array([])
         self.total_queues_per_step = np.array([])
+        self.reward_per_step = np.array([])
 
     def _on_step(self) -> bool:
-        if self.eval_freq > 0 and self.n_calls % self.eval_freq == 0:
+        if self.eval_freq > 0 and (self.n_calls % self.eval_freq == 0 or self.n_calls == 1):
             # Sync training and eval env if there is VecNormalize
             sync_envs_normalization(self.training_env, self.eval_env)
 
@@ -144,6 +146,7 @@ class SUMOEvalCallback(EvalCallback):
         self.total_CO2_emissions_per_step = np.append(self.total_CO2_emissions_per_step,
                                                       locals_['info']['total_CO2_emission'])
         self.total_queues_per_step = np.append(self.total_queues_per_step, locals_['info']['total_stopped'])
+        self.reward_per_step = np.append(self.reward_per_step, locals_['reward'])
 
     def _reset_traffic_metrics(self):
         self.average_speeds_per_step = np.array([])
@@ -151,6 +154,7 @@ class SUMOEvalCallback(EvalCallback):
         self.total_waits_per_step = np.array([])
         self.total_CO2_emissions_per_step = np.array([])
         self.total_queues_per_step = np.array([])
+        self.reward_per_step = np.array([])
 
     def _record_traffic_metrics(self):
         self.logger.record("eval/mean_brake", np.mean(self.total_brake_per_step))
@@ -158,9 +162,5 @@ class SUMOEvalCallback(EvalCallback):
         self.logger.record("eval/mean_wait", np.mean(self.total_waits_per_step))
         self.logger.record("eval/mean_emission", np.mean(self.total_CO2_emissions_per_step))
         self.logger.record("eval/mean_queue", np.mean(self.total_queues_per_step))
-        self.logger.record("eval/corr_queue_emiss", np.corrcoef(self.total_queues_per_step,
+        self.logger.record("eval/r_emiss_corr", np.corrcoef(self.reward_per_step,
                                                                 self.total_CO2_emissions_per_step)[0][1])
-        self.logger.record("eval/corr_brake_emiss", np.corrcoef(self.total_brake_per_step,
-                                                                self.total_CO2_emissions_per_step)[0][1])
-        self.logger.record("eval/corr_brake_queue", np.corrcoef(self.total_brake_per_step,
-                                                                self.total_queues_per_step)[0][1])

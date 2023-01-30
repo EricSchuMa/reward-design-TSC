@@ -35,6 +35,7 @@ def main(args):
 
         eval_callback = SUMOEvalCallback(eval_env,
                                          best_model_save_path='./best_models/',
+                                         deterministic=True,
                                          eval_freq=train_config.getint('eval_freq'),  # log every episode
                                          n_eval_episodes=1  # currently only one eval_episode is supported
                                          )
