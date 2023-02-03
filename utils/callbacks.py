@@ -163,4 +163,4 @@ class SUMOEvalCallback(EvalCallback):
         self.logger.record("eval/mean_emission", np.mean(self.total_CO2_emissions_per_step))
         self.logger.record("eval/mean_queue", np.mean(self.total_queues_per_step))
         self.logger.record("eval/r_emiss_corr", np.corrcoef(self.reward_per_step,
-                                                                self.total_CO2_emissions_per_step)[0][1])
+                                                            self.total_CO2_emissions_per_step)[0][1])
