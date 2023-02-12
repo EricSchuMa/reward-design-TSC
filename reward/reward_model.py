@@ -61,4 +61,5 @@ def get_normalization_ranges(config):
             'average_speed': config.getfloat('speed_range'),
             'diff_waiting_time': config.getfloat('diff_wait_range'),
             'wait': config.getfloat('wait_range'),
+            'acceleration': config.getfloat('acceleration_range'),
             }
